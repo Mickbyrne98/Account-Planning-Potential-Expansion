@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaseya Account Portfolio Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --k-navy: #1B3A6B;
+    --k-blue: #2A5CAA;
+    --k-blue-light: #E8EEF7;
+    --k-red: #C62828;
+    --k-red-light: #FEECEC;
+    --k-amber: #D84315;
+    --k-amber-light: #FFF3E0;
+    --k-green: #2E7D32;
+    --k-green-light: #E8F5E9;
+    --k-grey: #F7F8FA;
+    --k-border: #E2E6ED;
+    --k-text: #1A2332;
+    --k-text-muted: #6B7A92;
+    --k-text-light: #9CA8B8;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #F2F4F8; color: var(--k-text); font-size: 14px; min-height: 100vh; }
+
+  .app { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  /* Header */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid var(--k-navy); }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 36px; height: 36px; background: var(--k-navy); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark span { color: white; font-weight: 600; font-size: 14px; letter-spacing: 0.5px; }
+  .header-title { font-size: 18px; font-weight: 600; color: var(--k-navy); }
+  .header-sub { font-size: 12px; color: var(--k-text-muted); margin-top: 1px; }
+  .header-date { font-size: 12px; color: var(--k-text-light); font-family: var(--mono); }
+
+  /* Portfolio metrics */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .metric-card { background: white; border: 1px solid var(--k-border); border-radius: 10px; padding: 16px 18px; }
+  .metric-card.highlight { border-color: var(--k-blue); border-left: 4px solid var(--k-blue); }
+  .metric-label { font-size: 11px; font-weight: 500; color: var(--k-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .metric-value { font-size: 26px; font-weight: 600; color: var(--k-text); line-height: 1; }
+  .metric-value.green { color: var(--k-green); }
+  .metric-value.blue { color: var(--k-blue); }
+  .metric-sub { font-size: 11px; color: var(--k-text-light); margin-top: 5px; }
+  .status-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .pill.red { background: var(--k-red-light); color: var(--k-red); }
+  .pill.amber { background: var(--k-amber-light); color: var(--k-amber); }
+  .pill.green { background: var(--k-green-light); color: var(--k-green); }
+
+  /* Section heading */
+  .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--k-navy); text-transform: uppercase; letter-spacing: 0.07em; }
+  .divider { border: none; border-top: 1px solid var(--k-border); margin: 20px 0; }
+
+  /* Add form */
+  .add-form { background: white; border: 1px dashed var(--k-blue); border-radius: 10px; padding: 16px; margin-bottom: 14px; display: none; }
+  .add-form.visible { display: block; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .form-field label { display: block; font-size: 11px; font-weight: 500; color: var(--k-text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .form-field input, .form-field select { width: 100%; height: 36px; border: 1px solid var(--k-border); border-radius: 6px; padding: 0 10px; font-family: var(--font); font-size: 13px; color: var(--k-text); background: white; outline: none; }
+  .form-field input:focus, .form-field select:focus { border-color: var(--k-blue); }
+  .form-actions { display: flex; gap: 8px; }
+
+  /* Buttons */
+  .btn { height: 34px; padding: 0 16px; border-radius: 6px; border: none; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--k-navy); color: white; }
+  .btn-primary:hover { background: var(--k-blue); }
+  .btn-secondary { background: white; color: var(--k-text); border: 1px solid var(--k-border); }
+  .btn-secondary:hover { background: var(--k-grey); }
+  .btn-sm { height: 28px; padding: 0 12px; font-size: 12px; border-radius: 5px; }
+  .btn-danger { background: var(--k-red-light); color: var(--k-red); border: 1px solid #f5c6c6; }
+  .btn-danger:hover { background: #fcd6d6; }
+
+  /* Account cards */
+  .account-card { background: white; border: 1px solid var(--k-border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; transition: box-shadow 0.15s; }
+  .account-card:hover { box-shadow: 0 2px 12px rgba(27,58,107,0.08); }
+  .account-card.red-acct { border-left: 4px solid var(--k-red); }
+  .account-card.amber-acct { border-left: 4px solid var(--k-amber); }
+  .account-card.green-acct { border-left: 4px solid var(--k-green); }
+
+  .acct-header { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; user-select: none; }
+  .acct-header:hover { background: var(--k-grey); }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .acct-name { font-size: 14px; font-weight: 600; flex: 1; color: var(--k-text); }
+  .acct-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .acct-meta { font-size: 11px; color: var(--k-text-muted); text-align: right; line-height: 1.6; }
+  .chevron { font-size: 10px; color: var(--k-text-light); transition: transform 0.2s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .acct-body { border-top: 1px solid var(--k-border); padding: 14px 16px; }
+  .acct-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .acct-field label { display: block; font-size: 11px; color: var(--k-text-muted); margin-bottom: 3px; }
+  .acct-field input, .acct-field select { width: 100%; height: 32px; border: 1px solid var(--k-border); border-radius: 5px; padding: 0 8px; font-family: var(--font); font-size: 13px; color: var(--k-text); background: white; outline: none; }
+  .acct-field input:focus, .acct-field select:focus { border-color: var(--k-blue); }
+
+  .inline-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .imet { background: var(--k-grey); border-radius: 7px; padding: 10px 12px; }
+  .imet .il { font-size: 10px; color: var(--k-text-muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .imet .iv { font-size: 16px; font-weight: 600; color: var(--k-text); }
+  .imet .iv.green { color: var(--k-green); }
+  .imet .iv.blue { color: var(--k-blue); }
+
+  /* Progress bar */
+  .prog-wrap { margin-bottom: 14px; }
+  .prog-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--k-text-muted); margin-bottom: 5px; }
+  .prog-track { height: 6px; background: var(--k-border); border-radius: 3px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+
+  /* Task checklist */
+  .task-section { margin-bottom: 10px; }
+  .task-stage-label { font-size: 10px; font-weight: 600; color: var(--k-text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; padding-bottom: 4px; border-bottom: 1px solid var(--k-border); }
+  .task-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+  .task-item { display: flex; align-items: flex-start; gap: 7px; padding: 4px 0; }
+  .task-item input[type=checkbox] { margin-top: 2px; flex-shrink: 0; width: 14px; height: 14px; accent-color: var(--k-blue); cursor: pointer; }
+  .task-label { font-size: 12px; color: var(--k-text-muted); line-height: 1.4; cursor: pointer; }
+  .task-label.done { text-decoration: line-through; color: var(--k-text-light); }
+
+  .acct-footer { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--k-border); margin-top: 12px; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 40px; color: var(--k-text-muted); font-size: 13px; background: white; border: 1px dashed var(--k-border); border-radius: 10px; }
+
+  /* Export modal overlay */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.visible { display: flex; }
+  .modal { background: white; border-radius: 12px; padding: 24px; max-width: 480px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+  .modal-title { font-size: 16px; font-weight: 600; color: var(--k-navy); margin-bottom: 8px; }
+  .modal-body { font-size: 13px; color: var(--k-text-muted); line-height: 1.6; margin-bottom: 16px; }
+  .modal-code { background: var(--k-grey); border: 1px solid var(--k-border); border-radius: 6px; padding: 10px 12px; font-family: var(--mono); font-size: 12px; color: var(--k-text); margin-bottom: 16px; white-space: pre-wrap; word-break: break-all; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  @media (max-width: 600px) {
+    .inline-metrics { grid-template-columns: repeat(2, 1fr); }
+    .task-grid { grid-template-columns: 1fr; }
+    .acct-meta { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-mark"><span>K</span></div>
+      <div>
+        <div class="header-title">Account Portfolio Dashboard</div>
+        <div class="header-sub">Kaseya Sales — MSP Expansion Tracker</div>
+      </div>
+    </div>
+    <div class="header-date" id="hdr-date"></div>
+  </div>
+
+  <div class="metrics-grid" id="portfolio-metrics"></div>
+
+  <hr class="divider">
+
+  <div class="section-head">
+    <div class="section-title">Accounts</div>
+    <button class="btn btn-primary btn-sm" onclick="toggleAddForm()">+ Add account</button>
+  </div>
+
+  <div class="add-form" id="add-form">
+    <div class="form-grid">
+      <div class="form-field"><label>Account name</label><input type="text" id="new-name" placeholder="e.g. Acme IT"></div>
+      <div class="form-field"><label>IT Glue techs</label><input type="number" id="new-itg" value="10" min="0"></div>
+      <div class="form-field"><label>RMM agents</label><input type="number" id="new-rmm" value="0" min="0"></div>
+      <div class="form-field"><label>K365 seats</label><input type="number" id="new-cur" value="0" min="0"></div>
+      <div class="form-field"><label>€/seat/mo</label><input type="number" id="new-price" value="11" min="1"></div>
+      <div class="form-field"><label>AM owner</label>
+        <select id="new-am">
+          <option>Mick</option><option>Violetta</option><option>John</option><option>Lorcan</option><option>Deepak</option><option>Sowparnika</option><option>Rory</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary btn-sm" onclick="addAccount()">Add account</button>
+      <button class="btn btn-secondary btn-sm" onclick="toggleAddForm()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="accounts-list"></div>
+
+</div>
+
+<!-- Export info modal -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-title">Export account plan</div>
+    <div class="modal-body">Copy the summary below and paste it into Claude to generate a full Word document account plan for this account.</div>
+    <div class="modal-code" id="export-text"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="copyExport()">Copy to clipboard</button>
+      <button class="btn btn-primary btn-sm" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES_FLAT = [
+  {stage:'Stage 1 — repair',tasks:[
+    {id:'billing-review',label:'Billing statement reviewed'},
+    {id:'billing-confirm',label:'Billing resolution sent'},
+    {id:'support-audit',label:'Support ticket audit done'},
+    {id:'internal-brief',label:'RVP briefed internally'},
+  ]},
+  {stage:'Stage 2 — reopen',tasks:[
+    {id:'personal-outreach',label:'Personal outreach sent'},
+    {id:'discovery-call',label:'Discovery call completed'},
+    {id:'champion-mapped',label:'Champion identified'},
+    {id:'competitor-mapped',label:'Competitor usage mapped'},
+  ]},
+  {stage:'Stage 3 — resolve',tasks:[
+    {id:'product-session',label:'Product exec session held'},
+    {id:'roadmap-brief',label:'Roadmap briefing done'},
+    {id:'exec-online',label:'Online exec engagement done'},
+  ]},
+  {stage:'Stage 4 — in person',tasks:[
+    {id:'inperson-booked',label:'In-person meeting booked'},
+    {id:'inperson-held',label:'In-person meeting held'},
+    {id:'success-plan',label:'Mutual success plan agreed'},
+  ]},
+  {stage:'Stage 5 — expand',tasks:[
+    {id:'business-case',label:'K365 business case presented'},
+    {id:'competitive-displaced',label:'Competitor displacement agreed'},
+    {id:'k365-contracted',label:'K365 expansion contracted'},
+    {id:'qbr-scheduled',label:'First QBR scheduled'},
+  ]},
+];
+
+const ALL_TASKS = STAGES_FLAT.flatMap(s => s.tasks);
+const AMS = ['Mick','Violetta','John','Lorcan','Deepak','Sowparnika','Rory'];
+
+let accounts = [
+  {id:1,name:'Acme IT Solutions',itg:10,rmm:0,cur:0,price:11,am:'Violetta',open:false,checks:{}},
+  {id:2,name:'BrightTech MSP',itg:6,rmm:0,cur:200,price:11,am:'John',open:false,checks:{'billing-review':true,'support-audit':true,'internal-brief':true,'personal-outreach':true}},
+  {id:3,name:'CoreNet Ireland',itg:20,rmm:5000,cur:1200,price:10,am:'Lorcan',open:false,checks:{'billing-review':true,'billing-confirm':true,'support-audit':true,'internal-brief':true,'personal-outreach':true,'discovery-call':true,'champion-mapped':true,'competitor-mapped':true,'product-session':true,'roadmap-brief':true,'exec-online':true}},
+];
+let nextId = 4;
+let addFormVisible = false;
+
+function fmtE(n){return '€'+Math.round(n).toLocaleString('en-IE')}
+function fmt(n){return Math.round(n).toLocaleString('en-IE')}
+
+function calc(a){
+  const ep = a.rmm > 0 ? a.rmm : a.itg * 250;
+  const fullARR = ep * a.price * 12;
+  const curARR = a.cur * a.price * 12;
+  const gap = Math.max(0, fullARR - curARR);
+  const done = ALL_TASKS.filter(t => a.checks[t.id]).length;
+  const total = ALL_TASKS.length;
+  const pct = Math.round(done / total * 100);
+  return {ep, fullARR, curARR, gap, done, total, pct};
+}
+
+function statusColor(pct){ return pct >= 85 ? '#2E7D32' : pct >= 45 ? '#D84315' : '#C62828'; }
+function statusClass(pct){ return pct >= 85 ? 'green' : pct >= 45 ? 'amber' : 'red'; }
+function statusText(pct){ return pct >= 85 ? 'Green' : pct >= 45 ? 'Amber' : 'Red'; }
+function acctClass(pct){ return pct >= 85 ? 'green-acct' : pct >= 45 ? 'amber-acct' : 'red-acct'; }
+
+function renderMetrics(){
+  const totFull = accounts.reduce((s,a) => s + calc(a).fullARR, 0);
+  const totCur = accounts.reduce((s,a) => s + calc(a).curARR, 0);
+  const totGap = accounts.reduce((s,a) => s + calc(a).gap, 0);
+  const reds = accounts.filter(a => calc(a).pct < 45).length;
+  const ambers = accounts.filter(a => { const p=calc(a).pct; return p>=45&&p<85; }).length;
+  const greens = accounts.filter(a => calc(a).pct >= 85).length;
+  document.getElementById('portfolio-metrics').innerHTML = `
+    <div class="metric-card">
+      <div class="metric-label">Accounts</div>
+      <div class="metric-value">${accounts.length}</div>
+      <div class="status-pills">
+        <span class="pill red">${reds} red</span>
+        <span class="pill amber">${ambers} amber</span>
+        <span class="pill green">${greens} green</span>
+      </div>
+    </div>
+    <div class="metric-card highlight">
+      <div class="metric-label">Full ARR potential</div>
+      <div class="metric-value green">${fmtE(totFull)}</div>
+      <div class="metric-sub">Always the target</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Contracted ARR</div>
+      <div class="metric-value">${fmtE(totCur)}</div>
+      <div class="metric-sub">Today</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Total whitespace</div>
+      <div class="metric-value blue">${fmtE(totGap)}</div>
+      <div class="metric-sub">Expansion opportunity</div>
+    </div>
+  `;
+}
+
+function renderAccounts(){
+  const list = document.getElementById('accounts-list');
+  if(!accounts.length){
+    list.innerHTML = '<div class="empty">No accounts yet. Click "+ Add account" to get started.</div>';
+    return;
+  }
+  list.innerHTML = accounts.map(a => {
+    const c = calc(a);
+    const col = statusColor(c.pct);
+    const sc = statusClass(c.pct);
+    const ac = acctClass(c.pct);
+    const isOpen = a.open;
+    return `<div class="account-card ${ac}" id="card-${a.id}">
+      <div class="acct-header" onclick="toggleAcct(${a.id})">
+        <div class="status-dot" style="background:${col}"></div>
+        <div class="acct-name">${a.name}</div>
+        <span class="acct-badge pill ${sc}">${statusText(c.pct)}</span>
+        <div class="acct-meta">${fmtE(c.gap)} gap &nbsp;·&nbsp; ${a.am}<br>${c.done}/${c.total} tasks &nbsp;·&nbsp; ${c.pct}%</div>
+        <span class="chevron${isOpen?' open':''}">&#9654;</span>
+      </div>
+      ${isOpen ? `<div class="acct-body">
+        <div class="acct-fields">
+          <div class="acct-field"><label>IT Glue techs</label><input type="number" value="${a.itg}" min="0" onchange="updateField(${a.id},'itg',this.value)"></div>
+          <div class="acct-field"><label>RMM agents</label><input type="number" value="${a.rmm}" min="0" onchange="updateField(${a.id},'rmm',this.value)"></div>
+          <div class="acct-field"><label>K365 seats</label><input type="number" value="${a.cur}" min="0" onchange="updateField(${a.id},'cur',this.value)"></div>
+          <div class="acct-field"><label>€/seat/mo</label><input type="number" value="${a.price}" min="1" onchange="updateField(${a.id},'price',this.value)"></div>
+          <div class="acct-field"><label>AM owner</label>
+            <select onchange="updateField(${a.id},'am',this.value)">
+              ${AMS.map(n=>`<option${n===a.am?' selected':''}>${n}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="inline-metrics">
+          <div class="imet"><div class="il">Endpoints</div><div class="iv">${fmt(c.ep)}</div></div>
+          <div class="imet"><div class="il">Full ARR</div><div class="iv green">${fmtE(c.fullARR)}</div></div>
+          <div class="imet"><div class="il">Gap ARR</div><div class="iv blue">${fmtE(c.gap)}</div></div>
+          <div class="imet"><div class="il">Progress</div><div class="iv">${c.pct}%</div></div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-header"><span>Recovery progress</span><span>${c.done} of ${c.total} actions complete</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:${c.pct}%;background:${col}"></div></div>
+        </div>
+        <div class="task-section">
+          ${STAGES_FLAT.map(s=>`
+            <div class="task-stage-label">${s.stage}</div>
+            <div class="task-grid">
+              ${s.tasks.map(t=>`
+                <div class="task-item">
+                  <input type="checkbox" id="ck-${a.id}-${t.id}" ${a.checks[t.id]?'checked':''} onchange="toggleCheck(${a.id},'${t.id}',this.checked)">
+                  <label class="task-label${a.checks[t.id]?' done':''}" for="ck-${a.id}-${t.id}">${t.label}</label>
+                </div>`).join('')}
+            </div>
+          `).join('')}
+        </div>
+        <div class="acct-footer">
+          <button class="btn btn-secondary btn-sm" onclick="exportPlan(${a.id})">Export account plan</button>
+          <button class="btn btn-danger btn-sm" onclick="removeAccount(${a.id})">Remove</button>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function render(){ renderMetrics(); renderAccounts(); }
+
+function toggleAcct(id){
+  const a = accounts.find(x => x.id === id);
+  if(a) a.open = !a.open;
+  render();
+}
+
+function updateField(id, field, val){
+  const a = accounts.find(x => x.id === id);
+  if(!a) return;
+  a[field] = field === 'am' ? val : parseFloat(val) || 0;
+  render();
+}
+
+function toggleCheck(id, taskId, val){
+  const a = accounts.find(x => x.id === id);
+  if(!a) return;
+  a.checks[taskId] = val;
+  render();
+}
+
+function toggleAddForm(){
+  addFormVisible = !addFormVisible;
+  document.getElementById('add-form').classList.toggle('visible', addFormVisible);
+}
+
+function addAccount(){
+  const name = document.getElementById('new-name').value.trim() || 'New Account';
+  const itg = parseFloat(document.getElementById('new-itg').value) || 0;
+  const rmm = parseFloat(document.getElementById('new-rmm').value) || 0;
+  const cur = parseFloat(document.getElementById('new-cur').value) || 0;
+  const price = parseFloat(document.getElementById('new-price').value) || 11;
+  const am = document.getElementById('new-am').value;
+  accounts.push({id: nextId++, name, itg, rmm, cur, price, am, open: true, checks: {}});
+  document.getElementById('new-name').value = '';
+  toggleAddForm();
+  render();
+}
+
+function removeAccount(id){
+  if(!confirm('Remove this account?')) return;
+  accounts = accounts.filter(x => x.id !== id);
+  render();
+}
+
+function exportPlan(id){
+  const a = accounts.find(x => x.id === id);
+  if(!a) return;
+  const c = calc(a);
+  const completedTasks = ALL_TASKS.filter(t => a.checks[t.id]).map(t => t.label);
+  const pendingTasks = ALL_TASKS.filter(t => !a.checks[t.id]).map(t => t.label);
+  const stageProgress = STAGES_FLAT.map(s => {
+    const done = s.tasks.filter(t => a.checks[t.id]).length;
+    return s.stage + ': ' + done + '/' + s.tasks.length + ' complete';
+  }).join(', ');
+  const text = `Generate a detailed account recovery plan Word document for ${a.name}. Account manager: ${a.am}. Estimated endpoints: ${fmt(c.ep)}. Full ARR potential: ${fmtE(c.fullARR)}. Current contracted ARR: ${fmtE(c.curARR)}. Expansion gap: ${fmtE(c.gap)}. Recovery progress: ${c.pct}% (${c.done} of ${c.total} actions complete). Stage progress: ${stageProgress}. Completed actions: ${completedTasks.length ? completedTasks.join(', ') : 'none yet'}. Outstanding actions: ${pendingTasks.length ? pendingTasks.join(', ') : 'all complete'}. Please format this as a professional account plan Word document with: account summary metrics, a recovery stage progress table, completed vs outstanding actions, and a recommended next 3 steps section. Use Kaseya branding context.`;
+  document.getElementById('export-text').textContent = text;
+  document.getElementById('export-modal').classList.add('visible');
+}
+
+function closeModal(){
+  document.getElementById('export-modal').classList.remove('visible');
+}
+
+function copyExport(){
+  const text = document.getElementById('export-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy to clipboard', 2000);
+  });
+}
+
+document.getElementById('export-modal').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('en-IE', {day:'2-digit', month:'short', year:'numeric'});
+
+render();
+</script>
+</body>
+</html>

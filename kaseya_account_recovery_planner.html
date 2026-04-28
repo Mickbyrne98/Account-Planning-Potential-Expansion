@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaseya Account Recovery Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --k-navy: #1B3A6B;
+    --k-blue: #2A5CAA;
+    --k-blue-light: #E8EEF7;
+    --k-red: #C62828;
+    --k-red-light: #FEECEC;
+    --k-amber: #D84315;
+    --k-amber-light: #FFF3E0;
+    --k-green: #2E7D32;
+    --k-green-light: #E8F5E9;
+    --k-purple: #5E35B1;
+    --k-purple-light: #EDE7F6;
+    --k-grey: #F7F8FA;
+    --k-border: #E2E6ED;
+    --k-text: #1A2332;
+    --k-text-muted: #6B7A92;
+    --k-text-light: #9CA8B8;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #F2F4F8; color: var(--k-text); font-size: 14px; min-height: 100vh; }
+  .app { max-width: 860px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid var(--k-navy); }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 36px; height: 36px; background: var(--k-navy); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark span { color: white; font-weight: 600; font-size: 14px; }
+  .header-title { font-size: 18px; font-weight: 600; color: var(--k-navy); }
+  .header-sub { font-size: 12px; color: var(--k-text-muted); margin-top: 1px; }
+
+  .acct-input { font-size: 22px; font-weight: 600; border: none; border-bottom: 2px solid var(--k-border); background: transparent; width: 100%; padding: 4px 0; color: var(--k-navy); margin-bottom: 18px; outline: none; font-family: var(--font); transition: border-color 0.2s; }
+  .acct-input:focus { border-bottom-color: var(--k-blue); }
+
+  .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .ifield label { display: block; font-size: 11px; font-weight: 500; color: var(--k-text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .ifield input { width: 100%; height: 36px; border: 1px solid var(--k-border); border-radius: 6px; padding: 0 10px; font-family: var(--font); font-size: 13px; color: var(--k-text); background: white; outline: none; }
+  .ifield input:focus { border-color: var(--k-blue); }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .met { background: white; border: 1px solid var(--k-border); border-radius: 9px; padding: 12px 14px; }
+  .met .ml { font-size: 10px; font-weight: 500; color: var(--k-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .met .mv { font-size: 18px; font-weight: 600; }
+  .met .mv.green { color: var(--k-green); }
+  .met .mv.blue { color: var(--k-blue); }
+  .met .ms { font-size: 11px; color: var(--k-text-light); margin-top: 3px; }
+
+  .divider { border: none; border-top: 1px solid var(--k-border); margin: 18px 0; }
+
+  .prog-section { margin-bottom: 20px; }
+  .prog-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .prog-title { font-size: 13px; font-weight: 600; color: var(--k-navy); }
+  .prog-pct { font-size: 12px; color: var(--k-text-muted); font-family: var(--mono); }
+  .prog-track { height: 8px; background: var(--k-border); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .prog-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+  .status-row { display: flex; justify-content: space-between; align-items: center; }
+  .status-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sb-red { background: var(--k-red-light); color: var(--k-red); }
+  .sb-amber { background: var(--k-amber-light); color: var(--k-amber); }
+  .sb-green { background: var(--k-green-light); color: var(--k-green); }
+  .stage-text { font-size: 11px; color: var(--k-text-muted); }
+
+  .stage-block { border: 1px solid var(--k-border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .stage-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer; user-select: none; background: white; }
+  .stage-header:hover { background: var(--k-grey); }
+  .stage-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .stage-title-text { font-size: 13px; font-weight: 600; flex: 1; }
+  .stage-count { font-size: 11px; color: var(--k-text-muted); font-family: var(--mono); }
+  .complete-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: var(--k-green-light); color: var(--k-green); }
+  .chevron { font-size: 9px; color: var(--k-text-light); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .stage-body { border-top: 1px solid var(--k-border); padding: 12px 14px; background: white; }
+  .stage-desc { font-size: 12px; color: var(--k-text-muted); padding-bottom: 10px; margin-bottom: 8px; border-bottom: 1px solid var(--k-border); line-height: 1.5; }
+  .task-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; }
+  .task-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid #F0F2F5; }
+  .task-item:last-child { border-bottom: none; }
+  .task-item input[type=checkbox] { margin-top: 2px; flex-shrink: 0; width: 14px; height: 14px; accent-color: var(--k-blue); cursor: pointer; }
+  .task-content { flex: 1; }
+  .task-title { font-size: 12px; font-weight: 500; color: var(--k-text); line-height: 1.3; cursor: pointer; }
+  .task-title.done { text-decoration: line-through; color: var(--k-text-light); font-weight: 400; }
+  .task-desc { font-size: 11px; color: var(--k-text-muted); margin-top: 2px; line-height: 1.4; }
+  .task-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+  .tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; font-weight: 500; }
+  .tag-online { background: var(--k-blue-light); color: var(--k-blue); }
+  .tag-inperson { background: var(--k-purple-light); color: var(--k-purple); }
+  .tag-billing { background: var(--k-amber-light); color: var(--k-amber); }
+  .tag-product { background: var(--k-green-light); color: var(--k-green); }
+  .tag-exec { background: var(--k-red-light); color: var(--k-red); }
+  .tag-commercial { background: var(--k-green-light); color: var(--k-green); }
+  .tag-action { background: #E3F2FD; color: #1565C0; }
+
+  .export-bar { background: white; border: 1px solid var(--k-border); border-radius: 10px; padding: 14px 16px; margin-top: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: gap; gap: 10px; }
+  .export-bar-text { font-size: 13px; color: var(--k-text-muted); }
+  .export-bar-text strong { color: var(--k-text); }
+  .btn { height: 34px; padding: 0 16px; border-radius: 6px; border: none; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--k-navy); color: white; }
+  .btn-primary:hover { background: var(--k-blue); }
+  .btn-sm { height: 30px; padding: 0 14px; font-size: 12px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.visible { display: flex; }
+  .modal { background: white; border-radius: 12px; padding: 24px; max-width: 540px; width: 90%; }
+  .modal-title { font-size: 16px; font-weight: 600; color: var(--k-navy); margin-bottom: 6px; }
+  .modal-body { font-size: 13px; color: var(--k-text-muted); line-height: 1.6; margin-bottom: 12px; }
+  .modal-code { background: var(--k-grey); border: 1px solid var(--k-border); border-radius: 6px; padding: 12px; font-family: var(--mono); font-size: 11px; color: var(--k-text); margin-bottom: 14px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-secondary { background: white; color: var(--k-text); border: 1px solid var(--k-border); }
+  .btn-secondary:hover { background: var(--k-grey); }
+
+  @media (max-width: 580px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .task-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-mark"><span>K</span></div>
+      <div>
+        <div class="header-title">Account Recovery Planner</div>
+        <div class="header-sub">Kaseya Sales — MSP Expansion Waterfall</div>
+      </div>
+    </div>
+  </div>
+
+  <input class="acct-input" id="acct-name" placeholder="Enter account name..." value="BrightTech MSP">
+
+  <div class="input-grid">
+    <div class="ifield"><label>IT Glue techs</label><input type="number" id="itg" value="10" min="0"></div>
+    <div class="ifield"><label>RMM agents (override)</label><input type="number" id="rmm" value="0" min="0"></div>
+    <div class="ifield"><label>Current K365 seats</label><input type="number" id="cur" value="0" min="0"></div>
+    <div class="ifield"><label>Bundle €/seat/mo</label><input type="number" id="price" value="11" min="1"></div>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <hr class="divider">
+
+  <div class="prog-section">
+    <div class="prog-header">
+      <span class="prog-title">Recovery progress</span>
+      <span class="prog-pct" id="prog-pct">0 of 18 actions</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="status-row">
+      <span class="status-badge sb-red" id="status-badge">Red account</span>
+      <span class="stage-text" id="stage-text">Stage 1 of 5</span>
+    </div>
+  </div>
+
+  <div id="waterfall"></div>
+
+  <div class="export-bar">
+    <div class="export-bar-text">Generate a full <strong>Word document account plan</strong> to share with your RVP or bring into a QBR.</div>
+    <button class="btn btn-primary btn-sm" onclick="exportPlan()">Export account plan</button>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-title">Export account plan</div>
+    <div class="modal-body">Copy this prompt and paste it into Claude to generate a formatted Word document account plan.</div>
+    <div class="modal-code" id="export-text"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="copyExport()">Copy to clipboard</button>
+      <button class="btn btn-primary btn-sm" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES = [
+  {
+    id:'repair', color:'#C62828',
+    title:'Stage 1 — relationship repair',
+    desc:'Resolve all blockers before any commercial motion. These are non-negotiable prerequisites.',
+    tasks:[
+      {id:'billing-review', title:'Billing statement reviewed', desc:'Full statement of account requested from Kaseya finance. Every disputed charge acknowledged.', tags:['billing','action']},
+      {id:'billing-confirm', title:'Billing resolution sent', desc:'Written confirmation sent to account. Credits or corrections documented and applied.', tags:['billing','action']},
+      {id:'support-audit', title:'Support ticket audit done', desc:'All open and recent tickets reviewed. Unresolved complaints assigned internally before outreach.', tags:['action']},
+      {id:'internal-brief', title:'RVP briefed internally', desc:'Your RVP is aware of this account\'s history and ready to be involved.', tags:['exec','action']},
+    ]
+  },
+  {
+    id:'reopen', color:'#D84315',
+    title:'Stage 2 — reopen the relationship',
+    desc:'Get back in the room. Small ask, honest tone, no commercial pressure.',
+    tasks:[
+      {id:'personal-outreach', title:'Personal outreach sent', desc:'Direct, personalised email from the AM. Acknowledges any issues. Asks for 20 minutes online.', tags:['online']},
+      {id:'discovery-call', title:'Discovery call completed', desc:'Listen 70%, talk 30%. Surface billing sentiment, product pain, competitor usage, team changes.', tags:['online']},
+      {id:'champion-mapped', title:'Champion identified', desc:'Named contact who is engaged and will advocate internally. New one found if previous left.', tags:['online']},
+      {id:'competitor-mapped', title:'Competitor usage mapped', desc:'Know what they use from Veeam, ConnectWise, Huntress, WatchGuard, SentinelOne — and why.', tags:['online']},
+    ]
+  },
+  {
+    id:'resolve', color:'#854F0B',
+    title:'Stage 3 — resolve outstanding issues',
+    desc:'Bring in the right Kaseya people. Show accountability.',
+    tasks:[
+      {id:'product-session', title:'Product exec session held', desc:'Exec who owns the product has spoken directly to this account — not just the SE.', tags:['product','exec','online']},
+      {id:'roadmap-brief', title:'Roadmap briefing done', desc:'What\'s fixed, what\'s coming, when. Show their feedback has been heard.', tags:['product','online']},
+      {id:'exec-online', title:'Online exec engagement done', desc:'Kaseya RVP or VP on a call with their leadership. Peer-to-peer executive contact.', tags:['exec','online']},
+    ]
+  },
+  {
+    id:'engage', color:'#5E35B1',
+    title:'Stage 4 — in-person executive engagement',
+    desc:'The relationship milestone. This converts a repaired account into a growth account.',
+    tasks:[
+      {id:'inperson-booked', title:'In-person meeting booked', desc:'Date confirmed. Kaseya brings RVP or above. Agenda agreed: their roadmap, joint success metrics, K365 proposal.', tags:['inperson','exec']},
+      {id:'inperson-held', title:'In-person meeting held', desc:'Meeting completed. Named exec sponsors on both sides. Dinner or hospitality if relationship warrants.', tags:['inperson','exec']},
+      {id:'success-plan', title:'Mutual success plan agreed', desc:'Joint plan with named owners, QBR cadence, and expansion milestones. Both sides sign off.', tags:['commercial']},
+    ]
+  },
+  {
+    id:'expand', color:'#2E7D32',
+    title:'Stage 5 — full K365 expansion',
+    desc:'Account is healthy. Convert the whitespace. Capture the revenue.',
+    tasks:[
+      {id:'business-case', title:'K365 business case presented', desc:'Endpoints, unlicensed whitespace, cost vs fragmented competitor spend. ProfitFuel framing — show their margin uplift.', tags:['commercial']},
+      {id:'competitive-displaced', title:'Competitor displacement agreed', desc:'Account agrees to consolidate from Veeam / ConnectWise / Huntress onto Kaseya stack.', tags:['commercial']},
+      {id:'k365-contracted', title:'K365 expansion contracted', desc:'New seats signed. Full endpoint and user estate licensed.', tags:['commercial']},
+      {id:'qbr-scheduled', title:'First QBR scheduled', desc:'QBR date in the diary. Account is green. Ongoing success motion engaged.', tags:['commercial']},
+    ]
+  }
+];
+
+const ALL_TASKS = STAGES.flatMap(s => s.tasks);
+let checks = {};
+let expanded = {repair: true, reopen: false, resolve: false, engage: false, expand: false};
+
+function fmtE(n){return '€'+Math.round(n).toLocaleString('en-IE')}
+function fmt(n){return Math.round(n).toLocaleString('en-IE')}
+
+function calcMetrics(){
+  const itg = parseFloat(document.getElementById('itg').value) || 0;
+  const rmm = parseFloat(document.getElementById('rmm').value) || 0;
+  const cur = parseFloat(document.getElementById('cur').value) || 0;
+  const price = parseFloat(document.getElementById('price').value) || 11;
+  const ep = rmm > 0 ? rmm : itg * 250;
+  const fullARR = ep * price * 12;
+  const curARR = cur * price * 12;
+  const gap = Math.max(0, fullARR - curARR);
+  return {ep, fullARR, curARR, gap, ep, price, cur};
+}
+
+function renderMetrics(){
+  const m = calcMetrics();
+  document.getElementById('metrics').innerHTML = `
+    <div class="met"><div class="ml">Endpoints</div><div class="mv">${fmt(m.ep)}</div><div class="ms">estimated</div></div>
+    <div class="met"><div class="ml">Full ARR potential</div><div class="mv green">${fmtE(m.fullARR)}</div><div class="ms">always the target</div></div>
+    <div class="met"><div class="ml">Contracted ARR</div><div class="mv">${fmtE(m.curARR)}</div><div class="ms">today</div></div>
+    <div class="met"><div class="ml">Expansion gap</div><div class="mv blue">${fmtE(m.gap)}</div><div class="ms">${fmt(Math.max(0, m.ep - m.cur))} unlicensed seats</div></div>
+  `;
+}
+
+function renderProgress(){
+  const done = ALL_TASKS.filter(t => checks[t.id]).length;
+  const total = ALL_TASKS.length;
+  const pct = Math.round(done / total * 100);
+  const col = pct >= 85 ? '#2E7D32' : pct >= 45 ? '#D84315' : '#C62828';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-fill').style.background = col;
+  document.getElementById('prog-pct').textContent = done + ' of ' + total + ' actions complete';
+  const badge = document.getElementById('status-badge');
+  if(pct >= 85){ badge.textContent = 'Green account'; badge.className = 'status-badge sb-green'; }
+  else if(pct >= 45){ badge.textContent = 'Amber account'; badge.className = 'status-badge sb-amber'; }
+  else { badge.textContent = 'Red account'; badge.className = 'status-badge sb-red'; }
+  const stagesComplete = STAGES.filter(s => s.tasks.every(t => checks[t.id])).length;
+  document.getElementById('stage-text').textContent = 'Stage ' + Math.min(stagesComplete + 1, 5) + ' of 5';
+}
+
+function tagHtml(tags){
+  return tags.map(t => {
+    const map = {online:'Online',inperson:'In person',billing:'Billing',product:'Product',exec:'Exec',commercial:'Commercial',action:'Action'};
+    return `<span class="tag tag-${t}">${map[t]||t}</span>`;
+  }).join('');
+}
+
+function renderWaterfall(){
+  const wf = document.getElementById('waterfall');
+  wf.innerHTML = STAGES.map(s => {
+    const done = s.tasks.filter(t => checks[t.id]).length;
+    const complete = done === s.tasks.length;
+    const isOpen = expanded[s.id];
+    return `<div class="stage-block">
+      <div class="stage-header" onclick="toggleStage('${s.id}')">
+        <div class="stage-dot" style="background:${s.color}"></div>
+        <div class="stage-title-text" style="color:${s.color}">${s.title}</div>
+        ${complete ? '<span class="complete-badge">Complete</span>' : ''}
+        <span class="stage-count">${done}/${s.tasks.length}</span>
+        <span class="chevron${isOpen?' open':''}">&#9654;</span>
+      </div>
+      ${isOpen ? `<div class="stage-body">
+        <div class="stage-desc">${s.desc}</div>
+        <div class="task-grid">
+          ${s.tasks.map(t => `
+            <div class="task-item">
+              <input type="checkbox" id="ck-${t.id}" ${checks[t.id]?'checked':''} onchange="toggleCheck('${t.id}',this.checked)">
+              <div class="task-content">
+                <label class="task-title${checks[t.id]?' done':''}" for="ck-${t.id}">${t.title}</label>
+                <div class="task-desc">${t.desc}</div>
+                <div class="task-tags">${tagHtml(t.tags)}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleStage(id){
+  expanded[id] = !expanded[id];
+  renderWaterfall();
+}
+
+function toggleCheck(id, val){
+  checks[id] = val;
+  renderProgress();
+  renderWaterfall();
+}
+
+function update(){
+  renderMetrics();
+  renderProgress();
+}
+
+function exportPlan(){
+  const name = document.getElementById('acct-name').value || 'Account';
+  const m = calcMetrics();
+  const done = ALL_TASKS.filter(t => checks[t.id]).length;
+  const total = ALL_TASKS.length;
+  const pct = Math.round(done / total * 100);
+  const completedTasks = ALL_TASKS.filter(t => checks[t.id]).map(t => t.title);
+  const pendingTasks = ALL_TASKS.filter(t => !checks[t.id]).map(t => t.title);
+  const stageProgress = STAGES.map(s => {
+    const d = s.tasks.filter(t => checks[t.id]).length;
+    return s.title + ': ' + d + '/' + s.tasks.length + ' complete';
+  }).join(', ');
+  const text = `Generate a detailed account recovery plan Word document for ${name}. Estimated endpoints: ${fmt(m.ep)}. Full ARR potential: ${fmtE(m.fullARR)}. Current contracted ARR: ${fmtE(m.curARR)}. Expansion gap: ${fmtE(m.gap)}. Recovery progress: ${pct}% (${done} of ${total} actions complete). Stage progress: ${stageProgress}. Completed actions: ${completedTasks.length ? completedTasks.join(', ') : 'none yet'}. Outstanding actions: ${pendingTasks.length ? pendingTasks.join(', ') : 'all complete'}. Please format as a professional account plan Word document with: account summary metrics, recovery stage progress table, completed vs outstanding actions, and recommended next 3 steps. Use Kaseya branding context.`;
+  document.getElementById('export-text').textContent = text;
+  document.getElementById('export-modal').classList.add('visible');
+}
+
+function closeModal(){ document.getElementById('export-modal').classList.remove('visible'); }
+function copyExport(){
+  navigator.clipboard.writeText(document.getElementById('export-text').textContent).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy to clipboard', 2000);
+  });
+}
+
+document.getElementById('export-modal').addEventListener('click', e => { if(e.target.id==='export-modal') closeModal(); });
+document.querySelectorAll('input[type=number]').forEach(el => el.addEventListener('input', update));
+
+update();
+renderWaterfall();
+</script>
+</body>
+</html>
