@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaseya Account Planning Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B3A6B;
+    --blue: #2A5CAA;
+    --blue-light: #E8EEF7;
+    --border: #E2E6ED;
+    --text: #1A2332;
+    --muted: #6B7A92;
+    --light: #9CA8B8;
+    --grey: #F7F8FA;
+    --green: #2E7D32;
+    --green-light: #E8F5E9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #F2F4F8; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* Top bar */
+  .topbar { background: var(--navy); padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .logo span { color: white; font-weight: 600; font-size: 14px; }
+  .topbar-title { color: white; font-size: 15px; font-weight: 500; }
+  .topbar-right { color: rgba(255,255,255,0.5); font-size: 12px; }
+
+  /* Hero */
+  .hero { background: white; border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; }
+  .hero-eyebrow { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); background: var(--blue-light); padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+  .hero-title { font-size: 32px; font-weight: 600; color: var(--navy); line-height: 1.2; margin-bottom: 12px; }
+  .hero-sub { font-size: 15px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+  /* Stats strip */
+  .stats { display: flex; justify-content: center; gap: 0; margin: 0; background: var(--grey); border-bottom: 1px solid var(--border); }
+  .stat { padding: 16px 32px; text-align: center; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-val { font-size: 20px; font-weight: 600; color: var(--navy); }
+  .stat-val.green { color: var(--green); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Tools grid */
+  .tools-wrap { max-width: 900px; margin: 40px auto; padding: 0 24px; flex: 1; }
+  .tools-heading { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; margin-bottom: 40px; }
+
+  .tool-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; text-decoration: none; color: inherit; display: flex; flex-direction: column; }
+  .tool-card:hover { box-shadow: 0 8px 32px rgba(27,58,107,0.12); transform: translateY(-2px); }
+
+  .tool-card-top { padding: 22px 22px 0; }
+  .tool-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; font-size: 20px; }
+  .icon-blue { background: var(--blue-light); }
+  .icon-green { background: var(--green-light); }
+  .tool-title { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .tool-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+
+  .tool-features { border-top: 1px solid var(--border); padding: 14px 22px; display: flex; flex-direction: column; gap: 6px; }
+  .feature { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .feature::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+
+  .tool-card-footer { padding: 14px 22px; border-top: 1px solid var(--border); margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+  .open-link { font-size: 13px; font-weight: 500; color: var(--blue); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+  .open-link:hover { color: var(--navy); }
+  .open-link svg { width: 14px; height: 14px; }
+  .tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+
+  /* How to use */
+  .howto { max-width: 900px; margin: 0 auto 48px; padding: 0 24px; }
+  .howto-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .howto-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 16px; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--navy); color: white; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .step-text strong { color: var(--text); font-weight: 500; }
+
+  /* Footer */
+  .footer { background: var(--navy); padding: 20px 32px; text-align: center; }
+  .footer p { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .footer strong { color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo"><span>K</span></div>
+    <div class="topbar-title">Kaseya Sales Tools</div>
+  </div>
+  <div class="topbar-right">MSP Account Planning · Ireland &amp; UK</div>
+</div>
+
+<div class="hero">
+  <div class="hero-eyebrow">Internal sales tools</div>
+  <h1 class="hero-title">Account Planning &amp; Expansion</h1>
+  <p class="hero-sub">Tools to identify whitespace, track recovery progress, and build a clear path from red account to full K365 expansion.</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val">5</div><div class="stat-label">Recovery stages</div></div>
+  <div class="stat"><div class="stat-val">18</div><div class="stat-label">Tracked actions</div></div>
+  <div class="stat"><div class="stat-val green">K365</div><div class="stat-label">Expansion target</div></div>
+  <div class="stat"><div class="stat-val">250+</div><div class="stat-label">Accounts in book</div></div>
+</div>
+
+<div class="tools-wrap">
+  <div class="tools-heading">Available tools</div>
+  <div class="tools-grid">
+
+    <a class="tool-card" href="kaseya_portfolio_dashboard.html">
+      <div class="tool-card-top">
+        <div class="tool-icon icon-blue">📊</div>
+        <div class="tool-title">Portfolio Dashboard</div>
+        <div class="tool-desc">Manage your full book of accounts in one view. See total ARR whitespace, track recovery progress across all accounts, and identify where to focus this quarter.</div>
+      </div>
+      <div class="tool-features">
+        <div class="feature">Add and manage multiple accounts</div>
+        <div class="feature">Book-level ARR potential and whitespace</div>
+        <div class="feature">Red / amber / green account status</div>
+        <div class="feature">18-action recovery checklist per account</div>
+        <div class="feature">Export account plan prompt for Word doc</div>
+      </div>
+      <div class="tool-card-footer">
+        <a class="open-link" href="kaseya_portfolio_dashboard.html">Open tool <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        <span class="tag tag-blue">Portfolio view</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="kaseya_account_recovery_planner.html">
+      <div class="tool-card-top">
+        <div class="tool-icon icon-green">🎯</div>
+        <div class="tool-title">Account Recovery Planner</div>
+        <div class="tool-desc">Deep-dive on a single account. Map their revenue potential, work through the 5-stage recovery waterfall, and generate a Word document plan for your RVP or QBR.</div>
+      </div>
+      <div class="tool-features">
+        <div class="feature">Endpoint and ARR potential from IT Glue signals</div>
+        <div class="feature">Full waterfall: repair → reopen → resolve → exec → expand</div>
+        <div class="feature">Stage-by-stage task checklist with context</div>
+        <div class="feature">Real-time red / amber / green account status</div>
+        <div class="feature">One-click export to Word document plan</div>
+      </div>
+      <div class="tool-card-footer">
+        <a class="open-link" href="kaseya_account_recovery_planner.html">Open tool <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        <span class="tag tag-green">Single account</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="howto">
+  <div class="howto-card">
+    <div class="howto-title">How to use these tools</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Enter account signals</strong> — IT Glue tech count, RMM agents if known, current K365 seats, and your bundle rate.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Review ARR potential</strong> — the full expansion opportunity is always visible. This is the target regardless of relationship status.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Work the waterfall</strong> — tick off actions stage by stage. Status moves from red to amber to green as you progress.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Export the plan</strong> — use the export button to generate a Word doc account plan to bring into your 1-to-1 or QBR.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p><strong>Kaseya Sales — Ireland &amp; UK</strong> · Account Planning Tools · Internal use only</p>
+</div>
+
+</body>
+</html>
